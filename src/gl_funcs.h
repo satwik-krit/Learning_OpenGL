@@ -1,3 +1,4 @@
+/*
 #include <gl/gl.h>
 
 #include "glext.h"
@@ -24,4 +25,4 @@ DECLARE_GLFUNCTION (glGenVertexArrays, GLGENVERTEXARRAYS)
 DECLARE_GLFUNCTION (glBindVertexArray, GLBINDVERTEXARRAY)
 DECLARE_GLFUNCTION (glGetShaderiv, GLGETSHADERIV)
 DECLARE_GLFUNCTION (glGetShaderInfoLog, GLGETSHADERINFOLOG)
-
+*/

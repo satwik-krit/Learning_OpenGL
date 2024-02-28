@@ -2,24 +2,15 @@
 #include <windows.h>
 #include <wingdi.h>
 #include <Windows.h>
-#include <gl/gl.h>
 #include <stdio.h>
-// #include <glad/glad.h>
+#include <glad/glad.h>
 
 #include "util.h"
-#include "gl_funcs.h"
 
 #define local_persist static
 #define global_variable static
 #define internal static
 
-#define LOAD_GLFUNCTION(func_name,token_name) PFN##token_name##PROC func_name = (PFN##token_name##PROC) LoadGLFunction (#func_name);
-
-// find the function and assign it to a function pointer
-
-/*typedef void WINAPI PFNGLUSEPROGRAMPROC (GLuint program); 
-PFNGLUSEPROGRAMPROC *glUseProgram;
-glUseProgram = (PFNGLUSEPROGRAMPROC *)wglGetProcAddress("glUseProgram");*/
 void
 InitOpenGL (HWND Window, HDC DeviceContext)
 {
@@ -40,84 +31,59 @@ InitOpenGL (HWND Window, HDC DeviceContext)
 
   if (wglMakeCurrent (DeviceContext, OpenGLRC))
   {
-//GL_GENBUFFERS glGenBuffers  = (GL_GENBUFFERS)wglGetProcAddress("glGenBuffers");
-
-//      PFNGLGENBUFFERSPROC glGenBuffers = (PFNGLGENBUFFERSPROC) wglGetProcAddress ("glGenBuffers");
-//      PFNGLGETSHADERIVPROC glGetShaderiv = (PFNGLGETSHADERIVPROC) wglGetProcAddress ("glGetShaderiv"); 
- //     LOAD_GLFUNCTION (glGetShaderiv, GLGETSHADERIV)
-  //    LOAD_GLFUNCTION (glGetShaderInfoLog, GLGETSHADERINFOLOG)
-   //LoadGLFunctionPointers ();
-
-// LOAD_GLFUNCTION (glUseProgram, GLUSEPROGRAM)
-LOAD_GLFUNCTION (glCreateProgram, GLCREATEPROGRAM)
-  PFNGLDELETESHADERPROC glDeleteShader =  (PFNGLDELETESHADERPROC) wglGetProcAddress ("glDeleteShader");
-//LOAD_GLFUNCTION (glDeleteShader, GLDELETESHADER)
-LOAD_GLFUNCTION (glLinkProgram, GLLINKPROGRAM)
-LOAD_GLFUNCTION (glShaderSource, GLSHADERSOURCE)
-LOAD_GLFUNCTION (glAttachShader, GLATTACHSHADER)
-LOAD_GLFUNCTION (glGenBuffers, GLGENBUFFERS)
-LOAD_GLFUNCTION (glBindBuffer, GLBINDBUFFER)
-LOAD_GLFUNCTION (glBufferData, GLBUFFERDATA)
-LOAD_GLFUNCTION (glCreateShader, GLCREATESHADER)
-LOAD_GLFUNCTION (glCompileShader, GLCOMPILESHADER)
-LOAD_GLFUNCTION (glVertexAttribPointer, GLVERTEXATTRIBPOINTER)
-LOAD_GLFUNCTION (glEnableVertexAttribArray, GLENABLEVERTEXATTRIBARRAY)
-LOAD_GLFUNCTION (glGenVertexArrays, GLGENVERTEXARRAYS)
-LOAD_GLFUNCTION (glBindVertexArray, GLBINDVERTEXARRAY)
-LOAD_GLFUNCTION (glGetShaderiv, GLGETSHADERIV)
-LOAD_GLFUNCTION (glGetShaderInfoLog, GLGETSHADERINFOLOG)
-    
-    // glUseProgram(0);
-    
+    gladLoadGLLoader((GLADloadproc)wglGetProcAddress)    
   }
   else
-  {;}
+  {
+      printf ("Failed to create context!");
+      exit (0);
+  }
 
 }
 
 LRESULT
 MainWindowCallback (HWND Window,
-		    UINT Message,
-		    WPARAM wParam,
-		    LPARAM lParam)
+                    UINT Message,
+                    WPARAM wParam,
+                    LPARAM lParam)
 {
   LRESULT Result = 0;
   switch(Message)
   {
     case WM_CREATE:
-      {
-      } break;
+    {
+    } break;
     case WM_SIZE:
-      {
+    {
 	OutputDebugString("WM_SIZE\n");
-      }	break;
+    }	break;
 
     case WM_DESTROY:
-      {
+    {
 	OutputDebugString("WM_DESTROY\n");
-      } break;
+    } break;
 
     case WM_MOVE:
-      {
+    {
 	OutputDebugString("WM_MOVE\n");
-      } break;
+    } break;
 
     case WM_CLOSE:
-      {
+    {
 	OutputDebugString("WM_CLOSE\n");
 	exit(0);
-      } break;
+    } break;
 
     case WM_ACTIVATEAPP:
-      {
+    {
 	OutputDebugString("WM_ACTIVATEAPP\n");
-      } break;
+    } break;
 
     default:
-      {
+    {
 	/* OutputDebugString("default\n"); */
 	Result = DefWindowProc(Window, Message, wParam, lParam);
-      } break;
+    } break;
   }
 
   return Result;
@@ -136,9 +102,9 @@ OpenGLPleaseDraw (HDC DeviceContext)
 
 int WINAPI
 WinMain (HINSTANCE Instance, // Windows-provided instance of the program
-	 HINSTANCE prevInstance, // NULL on newer Windows versions
-	 LPSTR argCount, // Number of command-line arguments
-	 int windowType) // How to open the window - minimised, maximised or ...
+	     HINSTANCE prevInstance, // NULL on newer Windows versions
+         LPSTR argCount, // Number of command-line arguments
+         int windowType) // How to open the window - minimised, maximised or ...
 {
   WNDCLASS WindowClass = {0};
   WindowClass.style = CS_HREDRAW|CS_VREDRAW;

@@ -1,12 +1,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <gl/gl.h>
 #include <stdio.h>
-// #include <glad/glad.h>
+#include <glad/glad.h>
 
 #include "util.h"
-#include "gl_funcs.h"
 
+// We are not using this as of now. GLAD handles the function loading
 void*
 LoadGLFunction (const char* name)
 {
@@ -18,9 +17,6 @@ LoadGLFunction (const char* name)
 int
 ShaderCompileError (unsigned int shader)
 {
-
-  PFNGLGETSHADERIVPROC glGetShaderiv = (PFNGLGETSHADERIVPROC) wglGetProcAddress ("glGetShaderiv");
-  PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC) wglGetProcAddress ("glGetShaderInfoLog");
   int success;
   char infoLog [1024];
   glGetShaderiv (shader, GL_COMPILE_STATUS, &success);
@@ -31,5 +27,4 @@ ShaderCompileError (unsigned int shader)
   }
 
   return success;
-
 }

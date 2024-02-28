@@ -1,3 +1,4 @@
+/*
 #include "gl_funcs.h"
 #include "util.h"
  
@@ -24,3 +25,4 @@ LoadGLFunctionPointers (void)
     LOAD_GLFUNCTION (glGetShaderiv, GLGETSHADERIV)
     LOAD_GLFUNCTION (glGetShaderInfoLog, GLGETSHADERINFOLOG)
 }
+*/
