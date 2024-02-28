@@ -1,0 +1,4 @@
+out/
+*.vim
+temp.*
+tags
