@@ -1,0 +1,2 @@
+OPENGL
+ - Load OpenGL functions manually  (using GLAD as of now)
