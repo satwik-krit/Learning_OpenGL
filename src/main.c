@@ -31,7 +31,7 @@ InitOpenGL (HWND Window, HDC DeviceContext)
 
   if (wglMakeCurrent (DeviceContext, OpenGLRC))
   {
-    gladLoadGLLoader((GLADloadproc)wglGetProcAddress)    
+    gladLoadGLLoader((GLADloadproc)wglGetProcAddress);
   }
   else
   {
