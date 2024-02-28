@@ -1,4 +1,5 @@
 out/
+*.gch
 *.vim
 temp.*
 tags
