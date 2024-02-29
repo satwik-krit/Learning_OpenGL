@@ -1,9 +1,8 @@
 @echo off
-set ABSPATH=C:\Users\sande\Documents\Projects\OpenGL\Learning_OpenGL\
 set output=out
 set include=include
 set source=src
-pushd %ABSPATH%
+pushd %~dp0
 echo "Cleaning up..."
 mkdir %output%
 del %output%\main.exe

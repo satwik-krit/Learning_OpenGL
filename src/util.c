@@ -1,7 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
-#include <glad/glad.h>
+#include "gl_funcs.h"
 
 #include "util.h"
 
