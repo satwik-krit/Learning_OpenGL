@@ -1,8 +1,27 @@
-/*
-#include "gl_funcs.h"
 #include "util.h"
+#include <gl/gl.h>
+#include "glext.h"
  
-#define LOAD_GLFUNCTION(func_name,token_name) PFN##token_name##PROC func_name = (PFN##token_name##PROC) LoadGLFunction (#func_name);
+#define LOAD_GLFUNCTION(func_name,token_name) func_name = (PFN##token_name##PROC) LoadGLFunction (#func_name);
+#define DECLARE_GLFUNCTION_IMPL(func_name,token_name) PFN##token_name##PROC func_name;
+
+DECLARE_GLFUNCTION_IMPL (glUseProgram, GLUSEPROGRAM)
+DECLARE_GLFUNCTION_IMPL (glCreateProgram, GLCREATEPROGRAM)
+DECLARE_GLFUNCTION_IMPL (glDeleteShader, GLDELETESHADER)
+DECLARE_GLFUNCTION_IMPL (glLinkProgram, GLLINKPROGRAM)
+DECLARE_GLFUNCTION_IMPL (glShaderSource, GLSHADERSOURCE)
+DECLARE_GLFUNCTION_IMPL (glAttachShader, GLATTACHSHADER)
+DECLARE_GLFUNCTION_IMPL (glGenBuffers, GLGENBUFFERS)
+DECLARE_GLFUNCTION_IMPL (glBindBuffer, GLBINDBUFFER)
+DECLARE_GLFUNCTION_IMPL (glBufferData, GLBUFFERDATA)
+DECLARE_GLFUNCTION_IMPL (glCreateShader, GLCREATESHADER)
+DECLARE_GLFUNCTION_IMPL (glCompileShader, GLCOMPILESHADER)
+DECLARE_GLFUNCTION_IMPL (glVertexAttribPointer, GLVERTEXATTRIBPOINTER)
+DECLARE_GLFUNCTION_IMPL (glEnableVertexAttribArray, GLENABLEVERTEXATTRIBARRAY)
+DECLARE_GLFUNCTION_IMPL (glGenVertexArrays, GLGENVERTEXARRAYS)
+DECLARE_GLFUNCTION_IMPL (glBindVertexArray, GLBINDVERTEXARRAY)
+DECLARE_GLFUNCTION_IMPL (glGetShaderiv, GLGETSHADERIV)
+DECLARE_GLFUNCTION_IMPL (glGetShaderInfoLog, GLGETSHADERINFOLOG)
 
 inline void 
 LoadGLFunctionPointers (void)
@@ -25,4 +44,3 @@ LoadGLFunctionPointers (void)
     LOAD_GLFUNCTION (glGetShaderiv, GLGETSHADERIV)
     LOAD_GLFUNCTION (glGetShaderInfoLog, GLGETSHADERINFOLOG)
 }
-*/

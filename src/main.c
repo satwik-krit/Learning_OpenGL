@@ -3,7 +3,7 @@
 #include <wingdi.h>
 #include <Windows.h>
 #include <stdio.h>
-#include <glad/glad.h>
+#include "gl_funcs.h"
 
 #include "util.h"
 
@@ -29,16 +29,11 @@ InitOpenGL (HWND Window, HDC DeviceContext)
 
   HGLRC OpenGLRC = wglCreateContext (DeviceContext);
 
-  if (wglMakeCurrent (DeviceContext, OpenGLRC))
+  if (!wglMakeCurrent (DeviceContext, OpenGLRC))
   {
-    gladLoadGLLoader((GLADloadproc)wglGetProcAddress);
+	printf ("Failed to create context!");
+    exit (0);
   }
-  else
-  {
-      printf ("Failed to create context!");
-      exit (0);
-  }
-
 }
 
 LRESULT
@@ -132,7 +127,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	  HDC DeviceContext = GetDC (WindowHandle);
 
 	  InitOpenGL (WindowHandle, DeviceContext);
-
+	  glViewport (0, 0, 800, 800);
 
 	  float vertices [] = {
 	    -0.5f, -0.5f, 0.0f,
@@ -191,8 +186,6 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 		glEnableVertexAttribArray (0);
 		
 		glUseProgram (shaderProgram);
-		glBindVertexArray (VAO);
-		glDrawArrays (GL_TRIANGLES, 0, 3);
 
 		GLenum error = glGetError();
         
@@ -207,9 +200,12 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	      TranslateMessage (&Message);
 	      DispatchMessage (&Message);
 
-	      glViewport (0, 0, 800, 800);
 	      glClearColor (0.0f,1.0f,1.0f,1.0f);
 	      glClear (GL_COLOR_BUFFER_BIT);
+
+		  glBindVertexArray (VAO);
+		  glDrawArrays (GL_TRIANGLES, 0, 3);
+
 	      SwapBuffers (DeviceContext);
 	     }
 
