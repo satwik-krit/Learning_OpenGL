@@ -1,5 +1,6 @@
-#include "util.h"
 #include <gl/gl.h>
+
+#include "util.h"
 #include "glext.h"
  
 #define LOAD_GLFUNCTION(func_name,token_name) func_name = (PFN##token_name##PROC) LoadGLFunction (#func_name);
@@ -23,7 +24,7 @@ DECLARE_GLFUNCTION_IMPL (glBindVertexArray, GLBINDVERTEXARRAY)
 DECLARE_GLFUNCTION_IMPL (glGetShaderiv, GLGETSHADERIV)
 DECLARE_GLFUNCTION_IMPL (glGetShaderInfoLog, GLGETSHADERINFOLOG)
 
-inline void 
+void 
 LoadGLFunctionPointers (void)
 {
     LOAD_GLFUNCTION (glUseProgram, GLUSEPROGRAM)

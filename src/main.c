@@ -32,7 +32,11 @@ InitOpenGL (HWND Window, HDC DeviceContext)
   if (!wglMakeCurrent (DeviceContext, OpenGLRC))
   {
 	printf ("Failed to create context!");
-    exit (0);
+    exit (1);
+  }
+  else
+  {
+      LoadGLFunctionPointers ();
   }
 }
 
@@ -88,7 +92,7 @@ MainWindowCallback (HWND Window,
 inline void
 OpenGLPleaseDraw (HDC DeviceContext)
 {
-  glViewport (0, 0, 800, 800);
+  glViewport (0, 0, 400, 400);
   glClearColor (0.0f,1.0f,1.0f,1.0f);
   glClear (GL_COLOR_BUFFER_BIT);
   SwapBuffers (DeviceContext);
