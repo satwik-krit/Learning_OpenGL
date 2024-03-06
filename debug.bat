@@ -3,6 +3,8 @@ set output=out
 set include=include
 set source=src
 pushd %~dp0
+echo "Building tags"
+ctags -R
 echo "Cleaning up..."
 mkdir %output%
 del %output%\main.exe
