@@ -5,7 +5,36 @@
 
 #include "util.h"
 
-// We are not using this as of now. GLAD handles the function loading
+void
+LoadShader ()
+{
+}
+
+const char* 
+LoadFile (const char* FilePath)
+{
+   HANDLE File = CreateFileA (
+            FilePath,
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL
+           ); 
+
+   if (File == INVALID_HANDLE_VALUE)
+   {
+       printf ("Failed to open file at: %s\n",FilePath);
+       WhatsTheProblemWindows ();
+   }
+
+   const char* buffer =  (const char*)malloc (sizeof (char)*250);
+   DWORD BytesRead;
+   ReadFile (File, buffer, 250, &BytesRead, NULL);
+   return buffer;
+}
+
 void*
 LoadGLFunction (const char* name)
 {
@@ -15,7 +44,7 @@ LoadGLFunction (const char* name)
 }
 
 int
-ShaderCompileError (unsigned int shader)
+GetShaderCompileError (unsigned int shader)
 {
   int success;
   char infoLog [1024];
@@ -28,3 +57,13 @@ ShaderCompileError (unsigned int shader)
 
   return success;
 }
+
+void 
+WhatsTheProblemWindows ()
+{
+  LPVOID lpMsgBuf;
+  LPVOID lpDisplayBuf;
+  DWORD dw = GetLastError(); 
+  printf ("Error Code: %d",dw);
+}
+
