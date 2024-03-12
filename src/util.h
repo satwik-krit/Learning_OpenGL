@@ -1,15 +1,11 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-struct Shader
-{
-    int ID;
-    const char* content;
-};
+const char* LoadFile (const char* filePath);
 
-const char* LoadFile (const char* FilePath);
+unsigned int CompileShader (unsigned int shaderType, const char* filePath);
 
-void LoadShader ();
+unsigned int CreateShaderProgram (const char* vertexShaderPath,const char* fragmentShaderPath);
 
 void* LoadGLFunction (const char* name);
 

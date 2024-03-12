@@ -4,7 +4,6 @@
 #include <Windows.h>
 #include <gl/gl.h>
 #include <stdio.h>
-#include <math.h>
 #include "gl_funcs.h"
 
 #include "util.h"
@@ -111,7 +110,6 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
          LPSTR argCount, // Number of command-line arguments
          int windowType) // How to open the window - minimised, maximised or ...
 {
-  struct Shader test1 = {.ID = 0}, test2;
   WNDCLASS WindowClass = {0};
   WindowClass.style = CS_HREDRAW|CS_VREDRAW;
   WindowClass.lpfnWndProc = MainWindowCallback;
@@ -140,26 +138,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	  InitOpenGL (WindowHandle, DeviceContext);
 	  glViewport (0, 0, 800, 800);
 
-	  const char* vertexShaderSource = LoadFile ("src/res/vert_shader.glsl");
-      unsigned int vertexShader;
-	  vertexShader = glCreateShader (GL_VERTEX_SHADER);
-	  glShaderSource (vertexShader, 1, &vertexShaderSource, NULL);
-	  glCompileShader (vertexShader);
-
-      const char* fragmentShaderSource = LoadFile ("src/res/frag_shader.glsl");
-	  unsigned int fragmentShader;
-	  fragmentShader = glCreateShader (GL_FRAGMENT_SHADER);
-	  glShaderSource (fragmentShader, 1, &fragmentShaderSource, NULL);
-	  glCompileShader (fragmentShader);
-
-	  unsigned int shaderProgram;
-	  shaderProgram = glCreateProgram ();
-	  glAttachShader (shaderProgram, vertexShader);
-	  glAttachShader (shaderProgram, fragmentShader);
-	  glLinkProgram (shaderProgram);
-
-	  glDeleteShader (vertexShader);
-	  glDeleteShader (fragmentShader);
+	  unsigned int shaderProgram = CreateShaderProgram ("src/res/vert_shader.glsl", "src/res/frag_shader.glsl");
 
       float vertices[] = {
              0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // top right
@@ -197,7 +176,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof (float), (void *)(3 * sizeof (float)));
 	  glEnableVertexAttribArray (1);
 
-      //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+      // glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
 	  while (1)
 	  {

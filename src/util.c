@@ -5,16 +5,39 @@
 
 #include "util.h"
 
-void
-LoadShader ()
+unsigned int
+CompileShader (unsigned int shaderType, const char* filePath)
 {
+    const char* Shadersource = LoadFile (filePath);
+    unsigned int shader = glCreateShader (shaderType);
+    glShaderSource (shader, 1, &Shadersource, NULL);
+    glCompileShader (shader);
+    GetShaderCompileError (shader);
+    return shader;
+}
+
+unsigned int
+CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPath)
+{
+    unsigned int vertexShader = CompileShader (GL_VERTEX_SHADER,  vertexShaderPath);
+    unsigned int fragmentShader = CompileShader (GL_FRAGMENT_SHADER,  fragmentShaderPath);
+
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram ();
+
+	glAttachShader (shaderProgram, vertexShader);
+	glAttachShader (shaderProgram, fragmentShader);
+	glLinkProgram (shaderProgram);
+    glDeleteShader (vertexShader);
+	glDeleteShader (fragmentShader);
+    return shaderProgram;
 }
 
 const char* 
-LoadFile (const char* FilePath)
+LoadFile (const char* filePath)
 {
    HANDLE File = CreateFileA (
-            FilePath,
+            filePath,
             GENERIC_READ,
             FILE_SHARE_READ,
             NULL,
@@ -25,7 +48,7 @@ LoadFile (const char* FilePath)
 
    if (File == INVALID_HANDLE_VALUE)
    {
-       printf ("Failed to open file at: %s\n",FilePath);
+       printf ("Failed to open file at: %s\n",filePath);
        WhatsTheProblemWindows ();
    }
 
