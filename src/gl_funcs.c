@@ -2,10 +2,12 @@
 
 #include "util.h"
 #include "glext.h"
+#include "wglext.h"
  
 #define LOAD_GLFUNCTION(func_name,token_name) func_name = (PFN##token_name##PROC) LoadGLFunction (#func_name);
 #define DECLARE_GLFUNCTION_IMPL(func_name,token_name) PFN##token_name##PROC func_name;
-
+/* DECLARE_GLFUNCTION_IMPL (wglCreateContextAttribsARB, WGLCREATECONTEXTATTRIBSARB) */
+/* DECLARE_GLFUNCTION_IMPL (wglChoosePixelFormatARB, WGLCHOOSEPIXELFORMATARB) */
 DECLARE_GLFUNCTION_IMPL (glUseProgram, GLUSEPROGRAM)
 DECLARE_GLFUNCTION_IMPL (glCreateProgram, GLCREATEPROGRAM)
 DECLARE_GLFUNCTION_IMPL (glDeleteShader, GLDELETESHADER)
@@ -54,4 +56,6 @@ LoadGLFunctionPointers (void)
     LOAD_GLFUNCTION (glGenerateMipmap, GLGENERATEMIPMAP)
     LOAD_GLFUNCTION (glActiveTexture, GLACTIVETEXTURE)
     LOAD_GLFUNCTION (glUniform1i, GLUNIFORM1I)
+    /* LOAD_GLFUNCTION (wglCreateContextAttribsARB, WGLCREATECONTEXTATTRIBSARB) */
+    /* LOAD_GLFUNCTION (wglChoosePixelFormatARB, WGLCHOOSEPIXELFORMATARB) */
 }
