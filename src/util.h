@@ -1,6 +1,14 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+struct Image
+{
+    char* data;
+    int width;
+    int height;
+    int colorChannels;
+};
+
 const char* LoadFile (const char* filePath);
 
 unsigned int CompileShader (unsigned int shaderType, const char* filePath);
@@ -9,7 +17,7 @@ unsigned int CreateShaderProgram (const char* vertexShaderPath,const char* fragm
 
 void* LoadGLFunction (const char* name);
 
-int GetShaderCompileError (unsigned int shader);
+int GetShaderCompileError (unsigned int shader, unsigned int shaderType);
 
 void WhatsTheProblemWindows ();
 
