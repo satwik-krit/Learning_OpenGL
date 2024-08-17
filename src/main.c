@@ -1,34 +1,65 @@
+/* __vimdothis__
+let b:dispatch = 'mingw32-make'
+packadd a.vim
+packadd vim-fugitive
+ __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wingdi.h>
 #include <Windows.h>
 #include <gl/gl.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "gl_funcs.h"
 
 #include "util.h"
+#include "stb_image.h"
 
 #define local_persist static
 #define global_variable static
 #define internal static
 
+void InitOpenGLExtensions(void)
+{
+
+}
+
 void
 InitOpenGL (HWND Window, HDC DeviceContext)
 {
-  PIXELFORMATDESCRIPTOR DesiredPixelFormat = {0};
   PIXELFORMATDESCRIPTOR SuggestedPixelFormat;
-  DesiredPixelFormat.nSize = sizeof (DesiredPixelFormat);
-  DesiredPixelFormat.nVersion = 1;
-  DesiredPixelFormat.dwFlags = PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER|PFD_DRAW_TO_WINDOW;
-  DesiredPixelFormat.cColorBits = 32; // Why 32 bits for 3 colors? Does it include the alpha channel as well as opposed to the docs?
-  DesiredPixelFormat.cAlphaBits = 8;
+  PIXELFORMATDESCRIPTOR DesiredPixelFormat = {
+      .nSize = sizeof (DesiredPixelFormat),
+      .nVersion = 1,
+      .dwFlags = PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER|PFD_DRAW_TO_WINDOW,
+      .cColorBits = 32, // Why 32 bits for 3 colors? Does it include the alpha channel as well as opposed to the docs?
+      .cAlphaBits = 8
+  };
+
   /* DesiredPixelFormat.iLayerType = PFD_MAIN_PLANE; */
 
   int SuggestedPixelFormatIndex = ChoosePixelFormat (DeviceContext, &DesiredPixelFormat);
   DescribePixelFormat (DeviceContext, SuggestedPixelFormatIndex, sizeof (SuggestedPixelFormat), &SuggestedPixelFormat);
   SetPixelFormat (DeviceContext, SuggestedPixelFormatIndex, &SuggestedPixelFormat);
 
-  HGLRC OpenGLRC = wglCreateContext (DeviceContext);
+  // Create a 'fake' OpenGL context to load wglCreateContextAttribsARB and wglChoosePixelFormatARB functions
+  // Then use them to properly request for a core version.
+  HGLRC LegacyOpenGLRC = wglCreateContext (DeviceContext);
+  wglMakeCurrent(DeviceContext, LegacyOpenGLRC);
+
+    
+  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) LoadGLFunction("wglCreateContextAttribsARB");
+  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC) LoadGLFunction("wglChoosePixelFormatARB");
+
+  int attribs[] = {
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+            WGL_CONTEXT_FLAGS_ARB, 0,
+            WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB, // Tell Windows we want the core profile
+            0 
+        };
+  printf("Creating context...\n");
+  HGLRC OpenGLRC = wglCreateContextAttribsARB (DeviceContext, NULL, attribs);
 
   if (!wglMakeCurrent (DeviceContext, OpenGLRC))
   {
@@ -37,7 +68,10 @@ InitOpenGL (HWND Window, HDC DeviceContext)
   }
   else
   {
+      wglDeleteContext(LegacyOpenGLRC);
       LoadGLFunctionPointers ();
+      printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+      /* MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0); */
   }
 }
 
@@ -52,6 +86,7 @@ MainWindowCallback (HWND Window,
   {
     case WM_CREATE:
     {
+        fprintf(stderr, "Window created!");
     } break;
     case WM_SIZE:
     {
@@ -110,11 +145,12 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
          LPSTR argCount, // Number of command-line arguments
          int windowType) // How to open the window - minimised, maximised or ...
 {
-  WNDCLASS WindowClass = {0};
-  WindowClass.style = CS_HREDRAW|CS_VREDRAW;
-  WindowClass.lpfnWndProc = MainWindowCallback;
-  WindowClass.hInstance = Instance;
-  WindowClass.lpszClassName = "MyFirstWindow";
+  WNDCLASS WindowClass = {
+      .style = CS_HREDRAW|CS_VREDRAW,
+      .lpfnWndProc = MainWindowCallback,
+      .hInstance = Instance,
+      .lpszClassName = "MyFirstWindow"
+  };
 
   if(RegisterClass (&WindowClass))
   {
@@ -138,26 +174,48 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	  InitOpenGL (WindowHandle, DeviceContext);
 	  glViewport (0, 0, 800, 800);
 
-	  unsigned int shaderProgram = CreateShaderProgram ("src/res/vert_shader.glsl", "src/res/frag_shader.glsl");
+	  unsigned int shaderProgram = CreateShaderProgram ("../src/res/vert_shader.glsl", "../src/res/frag_shader.glsl");
 
       float vertices[] = {
-             0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // top right
-            -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
-             0.0f, 0.5f, 0.0f,0.0f, 0.0f, 1.0f  // bottom right
+            // positions          // colors           // texture coords
+             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
       };
 
 	  unsigned int indices [] = {
-	    0, 1, 2, // First triangle
-	    //1, 0, 3  // Second triangle
+	    0, 1, 3, // First triangle
+	    1, 2, 3  // Second triangle
 	  };
 
-	  unsigned int VAO;
-	  glGenVertexArrays (1,&VAO);
+      float texCoords[] = {
+          0.0f, 0.0f, // lower left
+          1.0f, 0.0f, // lower right
+          0.5f, 1.0f  // top center
+      };
 
-	  unsigned int VBO;
+      float borderColor[] = {1.0, 1.0f, 0.0f, 1.0f};
+
+      // Loading image
+        stbi_set_flip_vertically_on_load(1);
+      struct Image container_image;
+      container_image.data = stbi_load ("../container.jpg", &container_image.width, &container_image.height, &container_image.colorChannels, 0);
+      struct Image face_image;
+      face_image.data = stbi_load ("../awesomeface.png", &face_image.width, &face_image.height, &face_image.colorChannels, 0);
+
+      if (!container_image.data || !face_image.data)
+      {
+          printf ("Failed to load image\n");
+          const char* fail = stbi_failure_reason(); 
+          printf("Reason:%s\n",fail);
+          exit (1);
+      }
+
+
+	  unsigned int VAO, VBO, EBO;
+	  glGenVertexArrays (1,&VAO);
 	  glGenBuffers (1, &VBO);
-      
-	  unsigned int EBO;
       glGenBuffers (1, &EBO);
 
 	  glBindVertexArray (VAO);
@@ -169,33 +227,68 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
       glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indices), indices, GL_STATIC_DRAW);
 
       // position attribute
-	  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof (float), (void *)0);
+	  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (float), (void *)0);
 	  glEnableVertexAttribArray (0);
       
       // color attribute
-	  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof (float), (void *)(3 * sizeof (float)));
+	  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (float), (void *)(3 * sizeof (float)));
 	  glEnableVertexAttribArray (1);
 
-      // glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+      // vertex attribute
+      glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof (float),  (void *)(6 * sizeof (float)));
+	  glEnableVertexAttribArray (2);
+
+      // Loading texture
+      glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+      unsigned int texture1, texture2;
+      glGenTextures (1, &texture1);
+      glGenTextures (1, &texture2);
+      glBindTexture (GL_TEXTURE_2D, texture1);
+
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, container_image.width, container_image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, container_image.data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+
+      glBindTexture (GL_TEXTURE_2D, texture2);
+
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, face_image.width, face_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, face_image.data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+
+      stbi_image_free (container_image.data);
+      stbi_image_free (face_image.data);
+
+      glUseProgram (shaderProgram);
+      glUniform1i(glGetUniformLocation(shaderProgram, "texture1"),0);
+      glUniform1i(glGetUniformLocation(shaderProgram, "texture2"),1);
+      //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
 	  while (1)
 	  {
 	     MSG Message;
-	     BOOL MessageResult = GetMessage (&Message, 0, 0, 0);
+	     bool MessageResult = GetMessage (&Message, 0, 0, 0);
 
 	     if (MessageResult > 0)
 	     {
 	      TranslateMessage (&Message);
 	      DispatchMessage (&Message);
 
+          //glViewport (0, 0, 400, 400);
 	      glClearColor (0.0f,1.0f,1.0f,1.0f);
 	      glClear (GL_COLOR_BUFFER_BIT);
 
-          glUseProgram (shaderProgram);
+          glActiveTexture (GL_TEXTURE0);
+          glBindTexture (GL_TEXTURE_2D, texture1);
 
+          glActiveTexture (GL_TEXTURE1);
+          glBindTexture (GL_TEXTURE_2D, texture2);
+
+          glUseProgram (shaderProgram);
           glBindVertexArray (VAO);
           glDrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-          glBindVertexArray (0);
 
 	      SwapBuffers (DeviceContext);
 	     }
@@ -206,12 +299,14 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	     }
 
 	  }
+      ReleaseDC (WindowHandle, DeviceContext);
       }
 
       else
 	{
   // TODO: Logging
-	}}
+	}
+  }
 
   else
   {
