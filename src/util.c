@@ -1,3 +1,7 @@
+/* __vimdothis__
+let b:dispatch = 'mingw32-make'
+packadd a
+__vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -8,11 +12,14 @@
 unsigned int
 CompileShader (unsigned int shaderType, const char* filePath)
 {
-    const char* Shadersource = LoadFile (filePath);
+    const char* shaderSource = LoadFile (filePath);
+
     unsigned int shader = glCreateShader (shaderType);
-    glShaderSource (shader, 1, &Shadersource, NULL);
+    glShaderSource (shader, 1, &shaderSource, NULL);
     glCompileShader (shader);
-    GetShaderCompileError (shader);
+
+    GetShaderCompileError (shader, shaderType);
+
     return shader;
 }
 
@@ -30,10 +37,11 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
 	glLinkProgram (shaderProgram);
     glDeleteShader (vertexShader);
 	glDeleteShader (fragmentShader);
+
     return shaderProgram;
 }
 
-const char* 
+const char * 
 LoadFile (const char* filePath)
 {
    HANDLE File = CreateFileA (
@@ -50,11 +58,23 @@ LoadFile (const char* filePath)
    {
        printf ("Failed to open file at: %s\n",filePath);
        WhatsTheProblemWindows ();
+       return NULL;
    }
 
-   const char* buffer =  (const char*)malloc (sizeof (char)*250);
+   unsigned int fileSize = GetFileSize (File, NULL);
+
+   const char* buffer =  (const char*)malloc (sizeof (char)*fileSize);
+   
    DWORD BytesRead;
-   ReadFile (File, buffer, 250, &BytesRead, NULL);
+   int status;
+
+   status = ReadFile (File, (void *)buffer, fileSize, &BytesRead, NULL);
+   /* printf("Buffer: %s", (char *)buffer); */
+
+   if (!status)
+   {
+       WhatsTheProblemWindows ();
+   }
    return buffer;
 }
 
@@ -62,21 +82,46 @@ void*
 LoadGLFunction (const char* name)
 {
   void *function = (void *)wglGetProcAddress (name);
-  // TODO: Handle case where function is NULL or 0
+  if (!function)
+  {
+     fprintf(stderr, "Failed to load function: %s\n", name); 
+     exit(1);
+  }
   return function;
 }
 
 int
-GetShaderCompileError (unsigned int shader)
+GetShaderCompileError (unsigned int shader, unsigned int shaderType)
 {
   int success;
-  char infoLog [1024];
+  char infoLog [2056];
+
   glGetShaderiv (shader, GL_COMPILE_STATUS, &success);
+
   if (!success)
   {
-    glGetShaderInfoLog (shader, 1024, NULL, infoLog);
-    printf ("%s\n",infoLog);
+    glGetShaderInfoLog (shader, 2056, NULL, infoLog);
   }
+  /* OutputDebugString (infoLog); */
+  printf ("OpenGL : %s\n",infoLog);
+
+/*  switch (shaderType)
+  {
+      case GL_VERTEX_SHADER:
+      {
+        printf ("OpenGL (Vertex): %s\n",infoLog);
+      } break;
+
+      case GL_FRAGMENT_SHADER:
+      {
+        printf ("OpenGL (Fragment): %s\n",infoLog);
+      } break;
+      default:
+      {
+        printf ("OpenGL (): %s\n",infoLog);
+      } break; 
+  } */
+
 
   return success;
 }
