@@ -10,10 +10,11 @@ packadd vim-fugitive
 #include <gl/gl.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "gl_funcs.h"
 
+#include "gl_funcs.h"
 #include "util.h"
 #include "stb_image.h"
+#include "HandmadeMath.h"
 
 #define local_persist static
 #define global_variable static
@@ -86,7 +87,6 @@ MainWindowCallback (HWND Window,
   {
     case WM_CREATE:
     {
-        fprintf(stderr, "Window created!");
     } break;
     case WM_SIZE:
     {
@@ -133,7 +133,7 @@ inline void
 OpenGLPleaseDraw (HDC DeviceContext)
 {
   glViewport (0, 0, 400, 400);
-  glClearColor (0.0f,1.0f,1.0f,1.0f);
+  glClearColor (0.0f,0.0f,0.0f,0.0f);
   glClear (GL_COLOR_BUFFER_BIT);
   SwapBuffers (DeviceContext);
 }
@@ -174,7 +174,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	  InitOpenGL (WindowHandle, DeviceContext);
 	  glViewport (0, 0, 800, 800);
 
-	  unsigned int shaderProgram = CreateShaderProgram ("../src/res/vert_shader.glsl", "../src/res/frag_shader.glsl");
+	  unsigned int shaderProgram = CreateShaderProgram ("res/vert_shader.glsl", "res/frag_shader.glsl");
 
       float vertices[] = {
             // positions          // colors           // texture coords
@@ -198,11 +198,12 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
       float borderColor[] = {1.0, 1.0f, 0.0f, 1.0f};
 
       // Loading image
-        stbi_set_flip_vertically_on_load(1);
-      struct Image container_image;
-      container_image.data = stbi_load ("../container.jpg", &container_image.width, &container_image.height, &container_image.colorChannels, 0);
-      struct Image face_image;
-      face_image.data = stbi_load ("../awesomeface.png", &face_image.width, &face_image.height, &face_image.colorChannels, 0);
+      stbi_set_flip_vertically_on_load(1);
+      Image container_image;
+      _LoadImage ("res/container.jpg", &container_image);
+
+      Image face_image;
+      _LoadImage ("res/awesomeface.png", &face_image);
 
       if (!container_image.data || !face_image.data)
       {
@@ -211,7 +212,6 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
           printf("Reason:%s\n",fail);
           exit (1);
       }
-
 
 	  unsigned int VAO, VBO, EBO;
 	  glGenVertexArrays (1,&VAO);
@@ -264,7 +264,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
       glUseProgram (shaderProgram);
       glUniform1i(glGetUniformLocation(shaderProgram, "texture1"),0);
       glUniform1i(glGetUniformLocation(shaderProgram, "texture2"),1);
-      //glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+      /* glPolygonMode (GL_FRONT_AND_BACK, GL_LINE); */
 
 	  while (1)
 	  {
@@ -277,7 +277,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	      DispatchMessage (&Message);
 
           //glViewport (0, 0, 400, 400);
-	      glClearColor (0.0f,1.0f,1.0f,1.0f);
+	      glClearColor (0.0f,0.0f,0.0f,0.0f);
 	      glClear (GL_COLOR_BUFFER_BIT);
 
           glActiveTexture (GL_TEXTURE0);
@@ -294,11 +294,9 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	     }
 
 	     else
-	     {
-	      break;
-	     }
-
+          break;
 	  }
+
       ReleaseDC (WindowHandle, DeviceContext);
       }
 
