@@ -5,9 +5,12 @@ __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
-#include "gl_funcs.h"
 
+#include "gl_funcs.h"
 #include "util.h"
+#include "stb_image.h"
+
+#define FILE_SIZE 4000
 
 unsigned int
 CompileShader (unsigned int shaderType, const char* filePath)
@@ -44,37 +47,24 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
 const char * 
 LoadFile (const char* filePath)
 {
-   HANDLE File = CreateFileA (
-            filePath,
-            GENERIC_READ,
-            FILE_SHARE_READ,
-            NULL,
-            OPEN_EXISTING,
-            FILE_ATTRIBUTE_NORMAL,
-            NULL
-           ); 
+   FILE* file;
+   file = fopen (filePath, "r");
+   const char* buffer = (const char*) malloc (FILE_SIZE);
+   const size_t returnCode = fread ((void*)buffer, sizeof(char), FILE_SIZE, file);
+   
+    /* printf("%s: %s", filePath, buffer); */ 
 
-   if (File == INVALID_HANDLE_VALUE)
+   if (!feof (file))
    {
-       printf ("Failed to open file at: %s\n",filePath);
-       WhatsTheProblemWindows ();
+       fprintf(stderr, "Error reading file %s: unexpected end of file.\n", filePath);
        return NULL;
    }
-
-   unsigned int fileSize = GetFileSize (File, NULL);
-
-   const char* buffer =  (const char*)malloc (sizeof (char)*fileSize);
-   
-   DWORD BytesRead;
-   int status;
-
-   status = ReadFile (File, (void *)buffer, fileSize, &BytesRead, NULL);
-   /* printf("Buffer: %s", (char *)buffer); */
-
-   if (!status)
+   else if (ferror (file))
    {
-       WhatsTheProblemWindows ();
+       fprintf(stderr, "Error reading file %s\n", filePath);
+       return NULL;
    }
+   
    return buffer;
 }
 
@@ -90,6 +80,17 @@ LoadGLFunction (const char* name)
   return function;
 }
 
+// We have to add a _ prefix since windows.h has the same function but with a
+// different signature.
+bool
+_LoadImage(const char* imagePath, Image* image)
+{
+    image->data = stbi_load (imagePath, &(image->width), &(image->height), &(image->colorChannels), 0);
+    if (!image->data)
+       return false;
+    return true; 
+}
+
 int
 GetShaderCompileError (unsigned int shader, unsigned int shaderType)
 {
@@ -101,27 +102,8 @@ GetShaderCompileError (unsigned int shader, unsigned int shaderType)
   if (!success)
   {
     glGetShaderInfoLog (shader, 2056, NULL, infoLog);
+    printf ("OpenGL : %s\n",infoLog);
   }
-  /* OutputDebugString (infoLog); */
-  printf ("OpenGL : %s\n",infoLog);
-
-/*  switch (shaderType)
-  {
-      case GL_VERTEX_SHADER:
-      {
-        printf ("OpenGL (Vertex): %s\n",infoLog);
-      } break;
-
-      case GL_FRAGMENT_SHADER:
-      {
-        printf ("OpenGL (Fragment): %s\n",infoLog);
-      } break;
-      default:
-      {
-        printf ("OpenGL (): %s\n",infoLog);
-      } break; 
-  } */
-
 
   return success;
 }
