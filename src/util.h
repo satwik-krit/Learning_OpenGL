@@ -1,13 +1,14 @@
 #ifndef UTIL_H
 #define UTIL_H
-
-struct Image
+#include <stdbool.h>
+// typedef enum {TRUE, FALSE} bool;
+typedef struct 
 {
     char* data;
     int width;
     int height;
     int colorChannels;
-};
+} Image;
 
 const char* LoadFile (const char* filePath);
 
@@ -20,5 +21,7 @@ void* LoadGLFunction (const char* name);
 int GetShaderCompileError (unsigned int shader, unsigned int shaderType);
 
 void WhatsTheProblemWindows ();
+
+bool _LoadImage (const char* imagePath, Image* image);
 
 #endif
