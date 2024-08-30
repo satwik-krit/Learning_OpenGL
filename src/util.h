@@ -12,6 +12,9 @@ typedef struct
 
 const char* LoadFile (const char* filePath);
 
+// The _ because windows.h already defines a LoadImage
+bool _LoadImage(const char* imagePath, Image* image);
+
 unsigned int CompileShader (unsigned int shaderType, const char* filePath);
 
 unsigned int CreateShaderProgram (const char* vertexShaderPath,const char* fragmentShaderPath);
