@@ -1,6 +1,7 @@
 /* __vimdothis__
 let b:dispatch = 'mingw32-make'
 packadd a
+set foldmethod=marker
 __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -14,7 +15,7 @@ __vimendthis__ */
 
 unsigned int
 CompileShader (unsigned int shaderType, const char* filePath)
-{
+{/* {{{ */
     const char* shaderSource = LoadFile (filePath);
 
     unsigned int shader = glCreateShader (shaderType);
@@ -24,11 +25,11 @@ CompileShader (unsigned int shaderType, const char* filePath)
     GetShaderCompileError (shader, shaderType);
 
     return shader;
-}
+}/* }}} */
 
 unsigned int
 CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPath)
-{
+{/* {{{ */
     unsigned int vertexShader = CompileShader (GL_VERTEX_SHADER,  vertexShaderPath);
     unsigned int fragmentShader = CompileShader (GL_FRAGMENT_SHADER,  fragmentShaderPath);
 
@@ -42,11 +43,11 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
 	glDeleteShader (fragmentShader);
 
     return shaderProgram;
-}
+}/* }}} */
 
 const char * 
 LoadFile (const char* filePath)
-{
+{/* {{{ */
    FILE* file;
    file = fopen (filePath, "r");
    const char* buffer = (const char*) malloc (FILE_SIZE);
@@ -66,11 +67,11 @@ LoadFile (const char* filePath)
    }
    
    return buffer;
-}
+}/* }}} */
 
 void*
 LoadGLFunction (const char* name)
-{
+{/* {{{ */
   void *function = (void *)wglGetProcAddress (name);
   if (!function)
   {
@@ -78,22 +79,22 @@ LoadGLFunction (const char* name)
      exit(1);
   }
   return function;
-}
+}/* }}} */
 
 // We have to add a _ prefix since windows.h has the same function but with a
 // different signature.
 bool
 _LoadImage(const char* imagePath, Image* image)
-{
+{/* {{{ */
     image->data = stbi_load (imagePath, &(image->width), &(image->height), &(image->colorChannels), 0);
     if (!image->data)
        return false;
     return true; 
-}
+}/* }}} */
 
 int
 GetShaderCompileError (unsigned int shader, unsigned int shaderType)
-{
+{/* {{{ */
   int success;
   char infoLog [2056];
 
@@ -106,14 +107,14 @@ GetShaderCompileError (unsigned int shader, unsigned int shaderType)
   }
 
   return success;
-}
+}/* }}} */
 
 void 
 WhatsTheProblemWindows ()
-{
+{/* {{{ */
   LPVOID lpMsgBuf;
   LPVOID lpDisplayBuf;
   DWORD dw = GetLastError(); 
   printf ("Error Code: %d",dw);
-}
+}/* }}} */
 

@@ -1,7 +1,14 @@
+/* __vimdothis__
+packadd a.vim
+packadd vim-fugitive
+set foldmethod=marker
+__vimendthis__ */
+
 #ifndef UTIL_H
 #define UTIL_H
+
 #include <stdbool.h>
-// typedef enum {TRUE, FALSE} bool;
+
 typedef struct 
 {
     char* data;

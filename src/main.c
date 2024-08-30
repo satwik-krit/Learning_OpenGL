@@ -2,6 +2,7 @@
 let b:dispatch = 'mingw32-make'
 packadd a.vim
 packadd vim-fugitive
+set foldmethod=marker
  __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -21,13 +22,13 @@ packadd vim-fugitive
 #define internal static
 
 void InitOpenGLExtensions(void)
-{
+{/* {{{ */
 
-}
+}/* }}} */
 
 void
 InitOpenGL (HWND Window, HDC DeviceContext)
-{
+{/* {{{ */
   PIXELFORMATDESCRIPTOR SuggestedPixelFormat;
   PIXELFORMATDESCRIPTOR DesiredPixelFormat = {
       .nSize = sizeof (DesiredPixelFormat),
@@ -74,14 +75,14 @@ InitOpenGL (HWND Window, HDC DeviceContext)
       printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
       /* MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0); */
   }
-}
+}/* }}} */
 
 LRESULT
 MainWindowCallback (HWND Window,
                     UINT Message,
                     WPARAM wParam,
                     LPARAM lParam)
-{
+{/* {{{ */
   LRESULT Result = 0;
   switch(Message)
   {
@@ -126,17 +127,17 @@ MainWindowCallback (HWND Window,
   }
 
   return Result;
-}
+}/* }}} */
 
 
 inline void
 OpenGLPleaseDraw (HDC DeviceContext)
-{
+{/* {{{ */
   glViewport (0, 0, 400, 400);
   glClearColor (0.0f,0.0f,0.0f,0.0f);
   glClear (GL_COLOR_BUFFER_BIT);
   SwapBuffers (DeviceContext);
-}
+}/* }}} */
 
 
 int WINAPI
@@ -144,7 +145,7 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 	     HINSTANCE prevInstance, // NULL on newer Windows versions
          LPSTR argCount, // Number of command-line arguments
          int windowType) // How to open the window - minimised, maximised or ...
-{
+{/* {{{ */
   WNDCLASS WindowClass = {
       .style = CS_HREDRAW|CS_VREDRAW,
       .lpfnWndProc = MainWindowCallback,
@@ -312,4 +313,4 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
   }
 
   return 0;
-}
+}/* }}} */
