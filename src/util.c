@@ -45,12 +45,12 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
     return shaderProgram;
 }/* }}} */
 
-const char * 
+char * 
 LoadFile (const char* filePath)
 {/* {{{ */
    FILE* file;
    file = fopen (filePath, "r");
-   const char* buffer = (const char*) malloc (FILE_SIZE);
+   char* buffer = ( char*) malloc (FILE_SIZE+1);
    const size_t returnCode = fread ((void*)buffer, sizeof(char), FILE_SIZE, file);
    
     /* printf("%s: %s", filePath, buffer); */ 
