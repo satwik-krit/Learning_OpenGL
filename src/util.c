@@ -1,8 +1,8 @@
 /* __vimdothis__
-let b:dispatch = 'mingw32-make'
-packadd a
-set foldmethod=marker
-__vimendthis__ */
+   let b:dispatch = 'mingw32-make'
+   packadd a
+   set foldmethod=marker
+   __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -34,14 +34,14 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
     unsigned int vertexShader = CompileShader (GL_VERTEX_SHADER,  vertexShaderPath);
     unsigned int fragmentShader = CompileShader (GL_FRAGMENT_SHADER,  fragmentShaderPath);
 
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram ();
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram ();
 
-	glAttachShader (shaderProgram, vertexShader);
-	glAttachShader (shaderProgram, fragmentShader);
-	glLinkProgram (shaderProgram);
+    glAttachShader (shaderProgram, vertexShader);
+    glAttachShader (shaderProgram, fragmentShader);
+    glLinkProgram (shaderProgram);
     glDeleteShader (vertexShader);
-	glDeleteShader (fragmentShader);
+    glDeleteShader (fragmentShader);
 
     return shaderProgram;
 }/* }}} */
@@ -49,38 +49,40 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
 char * 
 LoadFile (const char* filePath)
 {/* {{{ */
-   FILE* file;
-   file = fopen (filePath, "r");
-   char* buffer = ( char*) malloc (FILE_SIZE+1);
-   const size_t returnCode = fread ((void*)buffer, sizeof(char), FILE_SIZE, file);
-   
-    /* printf("%s: %s", filePath, buffer); */ 
+    FILE* file;
+    file = fopen (filePath, "r");
+    char* buffer = ( char*) malloc (FILE_SIZE+1);
+    const size_t returnCode = fread ((void*)buffer, sizeof(char), FILE_SIZE, file);
 
-   if (!feof (file))
-   {
-       fprintf(stderr, "Error reading file %s: unexpected end of file.\n", filePath);
-       return NULL;
-   }
-   else if (ferror (file))
-   {
-       fprintf(stderr, "Error reading file %s\n", filePath);
-       return NULL;
-   }
-   
-   return buffer;
+    /* printf("%s: %s", filePath, buffer); */ 
     buffer[strlen(buffer)] = '\0';
+
+    if (!feof (file))
+    {
+        fprintf(stderr, "Error reading file %s: unexpected end of file.\n", filePath);
+        exit(1);
+        return NULL;
+    }
+    else if (ferror (file))
+    {
+        fprintf(stderr, "Error reading file %s\n", filePath);
+        exit(1);
+        return NULL;
+    }
+
+    return buffer;
 }/* }}} */
 
 void*
 LoadGLFunction (const char* name)
 {/* {{{ */
-  void *function = (void *)wglGetProcAddress (name);
-  if (!function)
-  {
-     fprintf(stderr, "Failed to load function: %s\n", name); 
-     exit(1);
-  }
-  return function;
+    void *function = (void *)wglGetProcAddress (name);
+    if (!function)
+    {
+        fprintf(stderr, "Failed to load function: %s\n", name); 
+        exit(1);
+    }
+    return function;
 }/* }}} */
 
 // We have to add a _ prefix since windows.h has the same function but with a
@@ -90,25 +92,21 @@ _LoadImage(const char* imagePath, Image* image)
 {/* {{{ */
     image->data = stbi_load (imagePath, &(image->width), &(image->height), &(image->colorChannels), 0);
     if (!image->data)
-       return false;
+        return false;
     return true; 
 }/* }}} */
 
 int
 GetShaderCompileError (unsigned int shader, unsigned int shaderType)
 {/* {{{ */
-  int success;
-  char infoLog [2056];
+    int success;
+    char infoLog [2056];
 
-  glGetShaderiv (shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv (shader, GL_COMPILE_STATUS, &success);
 
-  if (!success)
-  {
-    glGetShaderInfoLog (shader, 2056, NULL, infoLog);
-    printf ("OpenGL : %s\n",infoLog);
-  }
-
-  return success;
+    if (!success)
+    {
+        glGetShaderInfoLog (shader, 2056, NULL, infoLog);
         switch (shaderType)
         {
             case GL_VERTEX_SHADER:
@@ -120,14 +118,17 @@ GetShaderCompileError (unsigned int shader, unsigned int shaderType)
                     printf ("OpenGL (GL_FRAGMENT_SHADER): %s\n",infoLog);
                 } break;
         }
+    }
+
+    return success;
 }/* }}} */
 
 void 
 WhatsTheProblemWindows ()
 {/* {{{ */
-  LPVOID lpMsgBuf;
-  LPVOID lpDisplayBuf;
-  DWORD dw = GetLastError(); 
-  printf ("Error Code: %d",dw);
+    LPVOID lpMsgBuf;
+    LPVOID lpDisplayBuf;
+    DWORD dw = GetLastError(); 
+    printf ("Error Code: %d",dw);
 }/* }}} */
 
