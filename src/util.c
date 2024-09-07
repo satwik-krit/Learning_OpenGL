@@ -107,6 +107,17 @@ GetShaderCompileError (unsigned int shader, unsigned int shaderType)
   }
 
   return success;
+        switch (shaderType)
+        {
+            case GL_VERTEX_SHADER:
+                {
+                    printf ("OpenGL (GL_VERTEX_SHADER): %s\n",infoLog);
+                } break;
+            case GL_FRAGMENT_SHADER:
+                {
+                    printf ("OpenGL (GL_FRAGMENT_SHADER): %s\n",infoLog);
+                } break;
+        }
 }/* }}} */
 
 void 
