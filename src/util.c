@@ -6,6 +6,7 @@ __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "gl_funcs.h"
 #include "util.h"
@@ -67,6 +68,7 @@ LoadFile (const char* filePath)
    }
    
    return buffer;
+    buffer[strlen(buffer)] = '\0';
 }/* }}} */
 
 void*
