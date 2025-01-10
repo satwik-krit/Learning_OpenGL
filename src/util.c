@@ -1,12 +1,8 @@
-/* __vimdothis__
-   let b:dispatch = 'mingw32-make'
-   packadd a
-   set foldmethod=marker
-   __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "gl_funcs.h"
 #include "util.h"
@@ -51,11 +47,11 @@ LoadFile (const char* filePath)
 {/* {{{ */
     FILE* file;
     file = fopen (filePath, "r");
-    char* buffer = ( char*) malloc (FILE_SIZE+1);
+    char* buffer = (char*) malloc (FILE_SIZE+1); // +1 for \0
+    memset(buffer, 0, FILE_SIZE+1);
     const size_t returnCode = fread ((void*)buffer, sizeof(char), FILE_SIZE, file);
 
-    /* printf("%s: %s", filePath, buffer); */ 
-    buffer[strlen(buffer)] = '\0';
+    buffer[FILE_SIZE] = '\0';
 
     if (!feof (file))
     {
