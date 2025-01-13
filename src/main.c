@@ -16,6 +16,7 @@
 #include "util.h"
 #include "stb_image.h"
 #include "HandmadeMath.h"
+#include "cglm/struct.h"
 
 #define local_persist static
 #define global_variable static
@@ -214,18 +215,11 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 
             float borderColor[] = {1.0, 1.0f, 0.0f, 1.0f};
 
-            vec4_t vec = Vec4(1, 1, 2, VEC4_W_DEFAULT); 
-            vec4_t vec2 = Vec4(0.5f, 0.5f, 0.5f, VEC4_W_DEFAULT); 
-            mat4_t mat = Mat4Identity(); 
-            mat4_t trans = Mat4Translate(&vec);
-            trans = Mat4MultiplyScalar(&trans, 2);
-
-            for (int i = 0; i < 4; i++)
-            {
-                printf("\n");
-                for (int j = 0; j < 4; j++)
-                    printf("%f ", trans.members[i][j]);
-            };
+            vec3s vec1 = (vec3s){0.0f, 0.0f, -1.0f}, vec2 = {0.5f, 0.5f, 0.5f};
+            mat4s m1 = glms_mat4_identity();
+            m1 = glms_rotate(m1, GLM_PI, vec1);
+            m1 = glms_scale(m1, vec2);
+            /*m1 = glms_scale(m1, vec1);*/
 
             unsigned int VAO, VBO, EBO;
             glGenVertexArrays (1,&VAO);

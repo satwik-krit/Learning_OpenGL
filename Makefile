@@ -4,9 +4,11 @@ output = out
 interms = interms
 src_assets = src\res
 build_assets = out\res
+includeDirs = include external/cglm/include/
 
 CC = gcc
 
+includeCmd = $(foreach dir, $(includeDirs), -I $(dir))
 
 build: $(output)/build.exe assets tags
 
