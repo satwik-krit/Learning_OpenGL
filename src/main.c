@@ -1,9 +1,3 @@
-/* __vimdothis__
-   let b:dispatch = 'make'
-   packadd a.vim
-   packadd vim-fugitive
-   set foldmethod=marker
-   __vimendthis__ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <wingdi.h>
@@ -11,29 +5,27 @@
 #include <gl/gl.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "gl_funcs.h"
 #include "util.h"
 #include "stb_image.h"
-#include "HandmadeMath.h"
 #include "cglm/struct.h"
 
 #define local_persist static
 #define global_variable static
 #define internal static
 
-void 
-InitOpenGLExtensions(void)
-{/* {{{ */
+void InitOpenGLExtensions(void)
+{
 
-}/* }}} */
+}
 
-void
-InitOpenGL (HWND Window, HDC DeviceContext)
-{/* {{{ */
+void InitOpenGL (HWND Window, HDC DeviceContext)
+{
     PIXELFORMATDESCRIPTOR SuggestedPixelFormat;
     PIXELFORMATDESCRIPTOR DesiredPixelFormat = {
-        .nSize = sizeof (DesiredPixelFormat),
+        .nSize = sizeof(DesiredPixelFormat),
         .nVersion = 1,
         .dwFlags = PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER|PFD_DRAW_TO_WINDOW,
         .cColorBits = 32, // Why 32 bits for 3 colors? Does it include the alpha channel as well as opposed to the docs?
@@ -42,13 +34,13 @@ InitOpenGL (HWND Window, HDC DeviceContext)
 
     /* DesiredPixelFormat.iLayerType = PFD_MAIN_PLANE; */
 
-    int SuggestedPixelFormatIndex = ChoosePixelFormat (DeviceContext, &DesiredPixelFormat);
-    DescribePixelFormat (DeviceContext, SuggestedPixelFormatIndex, sizeof (SuggestedPixelFormat), &SuggestedPixelFormat);
-    SetPixelFormat (DeviceContext, SuggestedPixelFormatIndex, &SuggestedPixelFormat);
+    int SuggestedPixelFormatIndex = ChoosePixelFormat(DeviceContext, &DesiredPixelFormat);
+    DescribePixelFormat(DeviceContext, SuggestedPixelFormatIndex, sizeof(SuggestedPixelFormat), &SuggestedPixelFormat);
+    SetPixelFormat(DeviceContext, SuggestedPixelFormatIndex, &SuggestedPixelFormat);
 
     // Create a 'fake' OpenGL context to load wglCreateContextAttribsARB and wglChoosePixelFormatARB functions
     // Then use them to properly request for a core version.
-    HGLRC LegacyOpenGLRC = wglCreateContext (DeviceContext);
+    HGLRC LegacyOpenGLRC = wglCreateContext(DeviceContext);
     wglMakeCurrent(DeviceContext, LegacyOpenGLRC);
 
 
@@ -57,34 +49,32 @@ InitOpenGL (HWND Window, HDC DeviceContext)
 
     int attribs[] = {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 6,
         WGL_CONTEXT_FLAGS_ARB, 0,
-        WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB, // Tell Windows we want the core profile
+        WGL_CONTEXT_PROFILE_MASK_ARB,  
+        WGL_CONTEXT_CORE_PROFILE_BIT_ARB, // Tell Windows we want the core profile
         0 
     };
-    printf("Creating context...\n");
-    HGLRC OpenGLRC = wglCreateContextAttribsARB (DeviceContext, NULL, attribs);
+    HGLRC OpenGLRC = wglCreateContextAttribsARB(DeviceContext, NULL, attribs);
 
-    if (!wglMakeCurrent (DeviceContext, OpenGLRC))
+    if (!wglMakeCurrent(DeviceContext, OpenGLRC))
     {
-        printf ("Failed to create context!");
-        exit (1);
+        printf("Failed to create context!");
+        exit(1);
     }
-    else
-    {
-        wglDeleteContext(LegacyOpenGLRC);
-        LoadGLFunctionPointers ();
-        printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
-        /* MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0); */
-    }
-}/* }}} */
+    
+    wglDeleteContext(LegacyOpenGLRC);
+    LoadGLFunctionPointers();
+    printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+    /* MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0); */
+    
+}
 
-LRESULT
-MainWindowCallback (HWND Window,
-                    UINT Message,
-                    WPARAM wParam,
-                    LPARAM lParam)
-{/* {{{ */
+LRESULT MainWindowCallback(HWND Window,
+                           UINT Message,
+                           WPARAM wParam,
+                           LPARAM lParam)
+{
     LRESULT Result = 0;
     switch(Message)
     {
@@ -94,10 +84,10 @@ MainWindowCallback (HWND Window,
         case WM_SIZE:
             {
                 RECT rect;
-                GetWindowRect (Window, &rect);
+                GetWindowRect(Window, &rect);
                 int width = rect.right - rect.left;
                 int height = rect.bottom - rect.top;
-                glViewport (0, 0, width, height);
+                glViewport(0, 0, width, height);
             }	break;
 
         case WM_DESTROY:
@@ -129,25 +119,23 @@ MainWindowCallback (HWND Window,
     }
 
     return Result;
-}/* }}} */
+}
 
 
-inline void
-OpenGLPleaseDraw (HDC DeviceContext)
-{/* {{{ */
-    glViewport (0, 0, 400, 400);
-    glClearColor (0.0f,0.0f,0.0f,0.0f);
-    glClear (GL_COLOR_BUFFER_BIT);
-    SwapBuffers (DeviceContext);
-}/* }}} */
+inline void OpenGLPleaseDraw (HDC DeviceContext)
+{
+    glViewport(0, 0, 400, 400);
+    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    SwapBuffers(DeviceContext);
+}
 
 
-int WINAPI
-WinMain (HINSTANCE Instance, // Windows-provided instance of the program
-        HINSTANCE prevInstance, // NULL on newer Windows versions
-        LPSTR argCount, // Number of command-line arguments
-        int windowType) // How to open the window - minimised, maximised or ...
-{ /* {{{ */
+int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the program
+                    HINSTANCE prevInstance, // NULL on newer Windows versions
+                    LPSTR argCount, // Number of command-line arguments
+                    int windowType) // How to open the window - minimised, maximised or ...
+{ 
     WNDCLASS WindowClass = {
         .style = CS_HREDRAW|CS_VREDRAW,
         .lpfnWndProc = MainWindowCallback,
@@ -155,9 +143,9 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
         .lpszClassName = "MyFirstWindow"
     };
 
-    if(RegisterClass (&WindowClass))
+    if (RegisterClass(&WindowClass))
     {
-        HWND WindowHandle = CreateWindowEx (WS_EX_OVERLAPPEDWINDOW|WS_EX_WINDOWEDGE,
+        HWND WindowHandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW|WS_EX_WINDOWEDGE,
                 WindowClass.lpszClassName,
                 "Learning OpenGL",
                 WS_OVERLAPPEDWINDOW|WS_VISIBLE,
@@ -170,29 +158,29 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
                 Instance,
                 0);
 
-        if(WindowHandle)
+        if (WindowHandle)
         {
-            HDC DeviceContext = GetDC (WindowHandle);
+            HDC DeviceContext = GetDC(WindowHandle);
 
-            InitOpenGL (WindowHandle, DeviceContext);
-            glViewport (0, 0, 800, 800);
+            InitOpenGL(WindowHandle, DeviceContext);
+            glViewport(0, 0, 800, 800);
 
             // Loading image
             stbi_set_flip_vertically_on_load(1);
             Image container_image;
-            _LoadImage ("res/container.jpg", &container_image);
+            LoadImg("res/container.jpg", &container_image);
 
             Image face_image;
-            _LoadImage ("res/awesomeface.png", &face_image);
+            LoadImg("res/awesomeface.png", &face_image);
 
             if (!container_image.data || !face_image.data)
             {
-                printf ("Failed to load image\n");
+                printf("Failed to load image\n");
                 const char* fail = stbi_failure_reason(); 
                 printf("Reason:%s\n",fail);
-                exit (1);
+                exit(1);
             }
-            unsigned int shaderProgram = CreateShaderProgram ("res/vert_shader.glsl", "res/frag_shader.glsl");
+            unsigned int shaderProgram = CreateShaderProgram("res/vert_shader.glsl", "res/frag_shader.glsl");
 
             float vertices[] = {
                 // positions          // colors           // texture coords
@@ -215,47 +203,54 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
 
             float borderColor[] = {1.0, 1.0f, 0.0f, 1.0f};
 
-            vec3s vec1 = (vec3s){0.0f, 0.0f, -1.0f}, vec2 = {0.5f, 0.5f, 0.5f};
-            mat4s m1 = glms_mat4_identity();
-            m1 = glms_rotate(m1, GLM_PI, vec1);
-            m1 = glms_scale(m1, vec2);
+            vec3s vec1 = (vec3s){1.0f, 0.0f, 0.0f}, vec2 = {0.5f, 0.5f, 0.5f};
+            mat4s model = glms_mat4_identity();
+            model = glms_rotate(model, glm_rad(time(NULL)), vec1);
+            
+            mat4s view = glms_mat4_identity();
+            view = glms_translate(view, (vec3s){ 0.0f, 0.0f, -3.0f });
+
+            mat4s projection;
+            projection = glms_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+            
+
             /*m1 = glms_scale(m1, vec1);*/
 
             unsigned int VAO, VBO, EBO;
-            glGenVertexArrays (1,&VAO);
-            glGenBuffers (1, &VBO);
-            glGenBuffers (1, &EBO);
+            glGenVertexArrays(1,&VAO);
+            glGenBuffers(1, &VBO);
+            glGenBuffers(1, &EBO);
 
-            glBindVertexArray (VAO);
+            glBindVertexArray(VAO);
 
-            glBindBuffer (GL_ARRAY_BUFFER, VBO); 
-            glBufferData (GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STATIC_DRAW); 
+            glBindBuffer(GL_ARRAY_BUFFER, VBO); 
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); 
 
-            glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, EBO);
-            glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indices), indices, GL_STATIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
             // position attribute
-            glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (float), (void *)0);
-            glEnableVertexAttribArray (0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+            glEnableVertexAttribArray(0);
 
             // color attribute
-            glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (float), (void *)(3 * sizeof (float)));
-            glEnableVertexAttribArray (1);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+            glEnableVertexAttribArray(1);
 
             // vertex attribute
-            glVertexAttribPointer (2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof (float),  (void *)(6 * sizeof (float)));
-            glEnableVertexAttribArray (2);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+            glEnableVertexAttribArray(2);
 
             // Loading texture
-            glTexParameterfv (GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+            glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             unsigned int texture1, texture2;
-            glGenTextures (1, &texture1);
-            glGenTextures (1, &texture2);
+            glGenTextures(1, &texture1);
+            glGenTextures(1, &texture2);
             glBindTexture (GL_TEXTURE_2D, texture1);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, container_image.width, container_image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, container_image.data);
@@ -266,62 +261,56 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, face_image.width, face_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, face_image.data);
             glGenerateMipmap(GL_TEXTURE_2D);
 
-            stbi_image_free (container_image.data);
-            stbi_image_free (face_image.data);
+            stbi_image_free(container_image.data);
+            stbi_image_free(face_image.data);
 
-            glUseProgram (shaderProgram);
+            glUseProgram(shaderProgram);
             glUniform1i(glGetUniformLocation(shaderProgram, "texture1"),0);
             glUniform1i(glGetUniformLocation(shaderProgram, "texture2"),1);
-            /* glPolygonMode (GL_FRONT_AND_BACK, GL_LINE); */
+            /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
 
-            glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_FALSE, trans.cont_members);
 
-            float i = 0;
             while (1)
             {
                 MSG Message;
-                bool MessageResult = GetMessage (&Message, 0, 0, 0);
+                bool MessageResult = GetMessage(&Message, 0, 0, 0);
 
                 if (MessageResult > 0)
                 {
-                    TranslateMessage (&Message);
-                    DispatchMessage (&Message);
+                    TranslateMessage(&Message);
+                    DispatchMessage(&Message);
 
-                    //glViewport (0, 0, 400, 400);
-                    glClearColor (0.0f,0.0f,0.0f,0.0f);
-                    glClear (GL_COLOR_BUFFER_BIT);
+                    //glViewport(0, 0, 400, 400);
+                    glClearColor(0.0f,0.0f,0.0f,0.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
 
-                    glActiveTexture (GL_TEXTURE0);
-                    glBindTexture (GL_TEXTURE_2D, texture1);
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, texture1);
 
-                    glActiveTexture (GL_TEXTURE1);
-                    glBindTexture (GL_TEXTURE_2D, texture2);
+                    glActiveTexture(GL_TEXTURE1);
+                    glBindTexture(GL_TEXTURE_2D, texture2);
 
-                    printf("i: %f\n", i);
-                    vec.y =  i;
-                    trans = Mat4Translate(&vec);
-                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_FALSE, trans.cont_members);
 
-                    /*         for (int i = 0; i < 4; i++) */
-                    /*         { */
-                    /*             printf("\n"); */
-                    /*             for (int j = 0; j < 4; j++) */
-                    /*                 printf("%f ", trans.members[i][j]); */
-                    /*         }; */
+                    time_t t = time(NULL);
+                    printf("%u", t);
+                    model = glms_rotate(model, glm_rad(t), vec1);
+                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, model.raw[0]);
+                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projection.raw[0]);
+                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, view.raw[0]);
 
-                    glUseProgram (shaderProgram);
-                    glBindVertexArray (VAO);
-                    glDrawElements (GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+                    glUseProgram(shaderProgram);
+                    glBindVertexArray(VAO);
+                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-                    SwapBuffers (DeviceContext);
-                    i = i + 0.1;
+                    SwapBuffers(DeviceContext);
+                    /* i = i + 0.1; */
                 }
 
                 else
                     break;
             }
 
-            ReleaseDC (WindowHandle, DeviceContext);
+            ReleaseDC(WindowHandle, DeviceContext);
         }
 
         else
@@ -336,4 +325,5 @@ WinMain (HINSTANCE Instance, // Windows-provided instance of the program
     }
 
     return 0;
-}/* }}} */
+}
+// vim: foldmethod=expr

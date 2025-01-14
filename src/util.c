@@ -10,9 +10,8 @@
 
 #define FILE_SIZE 4000
 
-unsigned int
-CompileShader (unsigned int shaderType, const char* filePath)
-{/* {{{ */
+unsigned int CompileShader (unsigned int shaderType, const char* filePath)
+{
     const char* shaderSource = LoadFile (filePath);
 
     unsigned int shader = glCreateShader (shaderType);
@@ -22,11 +21,10 @@ CompileShader (unsigned int shaderType, const char* filePath)
     GetShaderCompileError (shader, shaderType);
 
     return shader;
-}/* }}} */
+}
 
-unsigned int
-CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPath)
-{/* {{{ */
+unsigned int CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPath)
+{
     unsigned int vertexShader = CompileShader (GL_VERTEX_SHADER,  vertexShaderPath);
     unsigned int fragmentShader = CompileShader (GL_FRAGMENT_SHADER,  fragmentShaderPath);
 
@@ -40,11 +38,10 @@ CreateShaderProgram  (const char* vertexShaderPath,const char* fragmentShaderPat
     glDeleteShader (fragmentShader);
 
     return shaderProgram;
-}/* }}} */
+}
 
-char * 
-LoadFile (const char* filePath)
-{/* {{{ */
+char *LoadFile (const char* filePath)
+{
     FILE* file;
     file = fopen (filePath, "r");
     char* buffer = (char*) malloc (FILE_SIZE+1); // +1 for \0
@@ -67,11 +64,10 @@ LoadFile (const char* filePath)
     }
 
     return buffer;
-}/* }}} */
+}
 
-void*
-LoadGLFunction (const char* name)
-{/* {{{ */
+void* LoadGLFunction (const char* name)
+{
     void *function = (void *)wglGetProcAddress (name);
     if (!function)
     {
@@ -79,22 +75,19 @@ LoadGLFunction (const char* name)
         exit(1);
     }
     return function;
-}/* }}} */
+}
 
-// We have to add a _ prefix since windows.h has the same function but with a
-// different signature.
-bool
-_LoadImage(const char* imagePath, Image* image)
-{/* {{{ */
+// Since windows.h has the same function but with a different signature, we replace Image with Img
+bool LoadImg(const char* imagePath, Image* image)
+{
     image->data = stbi_load (imagePath, &(image->width), &(image->height), &(image->colorChannels), 0);
     if (!image->data)
         return false;
     return true; 
-}/* }}} */
+}
 
-int
-GetShaderCompileError (unsigned int shader, unsigned int shaderType)
-{/* {{{ */
+int GetShaderCompileError (unsigned int shader, unsigned int shaderType)
+{
     int success;
     char infoLog [2056];
 
@@ -117,14 +110,13 @@ GetShaderCompileError (unsigned int shader, unsigned int shaderType)
     }
 
     return success;
-}/* }}} */
+}
 
-void 
-WhatsTheProblemWindows ()
-{/* {{{ */
+void WhatsTheProblemWindows ()
+{
     LPVOID lpMsgBuf;
     LPVOID lpDisplayBuf;
     DWORD dw = GetLastError(); 
     printf ("Error Code: %d",dw);
-}/* }}} */
+}
 

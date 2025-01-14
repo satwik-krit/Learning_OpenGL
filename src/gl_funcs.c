@@ -7,7 +7,7 @@
 #define LOAD_GLFUNCTION(func_name,token_name) func_name = (PFN##token_name##PROC) LoadGLFunction (#func_name);
 #define DECLARE_GLFUNCTION_IMPL(func_name,token_name) PFN##token_name##PROC func_name;
 
-/* DECLARE_GLFUNCTION_IMPL (wglCreateContextAttribsARB, WGLCREATECONTEXTATTRIBSARB) *//* {{{ */
+/* DECLARE_GLFUNCTION_IMPL (wglCreateContextAttribsARB, WGLCREATECONTEXTATTRIBSARB) */
 /* DECLARE_GLFUNCTION_IMPL (wglChoosePixelFormatARB, WGLCHOOSEPIXELFORMATARB) */
 DECLARE_GLFUNCTION_IMPL (glUseProgram, GLUSEPROGRAM)
 DECLARE_GLFUNCTION_IMPL (glCreateProgram, GLCREATEPROGRAM)
@@ -32,11 +32,11 @@ DECLARE_GLFUNCTION_IMPL (glGenerateMipmap, GLGENERATEMIPMAP)
 DECLARE_GLFUNCTION_IMPL (glActiveTexture, GLACTIVETEXTURE)
 DECLARE_GLFUNCTION_IMPL (glUniform1i, GLUNIFORM1I)
 DECLARE_GLFUNCTION_IMPL (glUniformMatrix4fv, GLUNIFORMMATRIX4FV)
-/* }}} */
+
 
 void 
 LoadGLFunctionPointers (void)
-{/* {{{ */
+{
         LOAD_GLFUNCTION (glUseProgram, GLUSEPROGRAM)
         LOAD_GLFUNCTION (glCreateProgram, GLCREATEPROGRAM)
         LOAD_GLFUNCTION (glDeleteShader, GLDELETESHADER)
@@ -62,4 +62,4 @@ LoadGLFunctionPointers (void)
         /* LOAD_GLFUNCTION (wglCreateContextAttribsARB, WGLCREATECONTEXTATTRIBSARB) */
         /* LOAD_GLFUNCTION (wglChoosePixelFormatARB, WGLCHOOSEPIXELFORMATARB) */
         LOAD_GLFUNCTION (glUniformMatrix4fv, GLUNIFORMMATRIX4FV)
-}/* }}} */
+}

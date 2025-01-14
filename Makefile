@@ -1,59 +1,57 @@
-source = src
-include = include
-output = out
-interms = interms
-src_assets = src\res
-build_assets = out\res
-includeDirs = include external/cglm/include/
+SOURCE_DIRS = src
+INCLUDE_DIRS = include external/cglm/include/
+OUTPUT_DIR = out
+INTERMS_DIR = interms
+SRC_ASSETS = res
+BUILD_ASSETS = out\res
 
 CC = gcc
 
-includeCmd = $(foreach dir, $(includeDirs), -I $(dir))
+INCLUDE_CMD =  $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 
-build: $(output)/build.exe assets tags
+.PHONY: prereq clean tags build assets
 
-$(output)/build.exe: $(interms)/main.o $(interms)/util.o $(interms)/gl_funcs.o $(interms)/stb_image.o $(interms)/handmademath.o
-	@$(CC) -o $(output)/build.exe $(interms)/main.o $(interms)/util.o $(interms)/gl_funcs.o $(interms)/stb_image.o -luser32 -lgdi32 -lopengl32
-	@echo Build completed.
+build: $(OUTPUT_DIR)/build.exe assets
 
-$(interms)/main.o: $(source)/main.c $(source)/util.h $(source)/gl_funcs.h
+objectFiles = $(wildcard $(INTERMS_DIR)/*.o)
+$(OUTPUT_DIR)/build.exe: dirs $(INTERMS_DIR)/main.o $(INTERMS_DIR)/util.o $(INTERMS_DIR)/gl_funcs.o $(INTERMS_DIR)/stb_image.o assets
+	@$(CC) -o $(OUTPUT_DIR)/build.exe $(objectFiles) -luser32 -lgdi32 -lopengl32
+
+$(INTERMS_DIR)/main.o: $(SOURCE_DIRS)/main.c $(SOURCE_DIRS)/util.h $(SOURCE_DIRS)/gl_funcs.h
 	@echo main.c
-	@$(CC) -I$(include) $(source)/main.c -c -g -o $(interms)/main.o
+	@$(CC) -std=c2x $(INCLUDE_CMD) $(SOURCE_DIRS)/main.c -c -g -o $(INTERMS_DIR)/main.o -Wall -Wpedantic
 
-$(interms)/util.o: $(source)/util.c $(source)/util.h
+$(INTERMS_DIR)/util.o: $(SOURCE_DIRS)/util.c $(SOURCE_DIRS)/util.h
 	@echo util.c
-	@$(CC) -I$(include) $(source)/util.c -c -g -o $(interms)/util.o
+	@$(CC) $(INCLUDE_CMD) $(SOURCE_DIRS)/util.c -c -g -o $(INTERMS_DIR)/util.o
 
-$(interms)/gl_funcs.o: $(source)/gl_funcs.c $(source)/gl_funcs.h
+$(INTERMS_DIR)/gl_funcs.o: $(SOURCE_DIRS)/gl_funcs.c $(SOURCE_DIRS)/gl_funcs.h
 	@echo gl_funcs.c
-	@$(CC) -I$(include) $(source)/gl_funcs.c -c -g -o $(interms)/gl_funcs.o
+	@$(CC) $(INCLUDE_CMD) $(SOURCE_DIRS)/gl_funcs.c -c -g -o $(INTERMS_DIR)/gl_funcs.o
 
-$(interms)/stb_image.o: $(source)/stb_image.c $(include)/stb_image.h
+$(INTERMS_DIR)/stb_image.o: $(SOURCE_DIRS)/stb_image.c include/stb_image.h
 	@echo stb_image.c
-	@$(CC) -I$(include) $(source)/stb_image.c -c -g -o $(interms)/stb_image.o
+	@$(CC) $(INCLUDE_CMD) $(SOURCE_DIRS)/stb_image.c -c -g -o $(INTERMS_DIR)/stb_image.o
 
-$(interms)/handmademath.o: $(include)\HandmadeMath.h
-	@echo HandmadeMath.h
-	@$(CC) $(include)/HandmadeMath.h -c -g -o $(interms)/HandmadeMath.o
+$(INTERMS_DIR)/math.o: $(SOURCE_DIRS)/math.c
+	@echo math.c
+	@$(CC) $(SOURCE_DIRS)/math.c -c -g -o $(INTERMS_DIR)/math.o -MATH_ONLY=1
 
-assets: $(wildcard $(src_assets)/*.*)
-	echo $(wildcard $(src_assets)/*.*)
-	@rmdir $(build_assets) /S /Q
-	@mkdir $(build_assets)
-	@copy $(src_assets)\* $(build_assets)\* /Y
+assets: $(wildcard $(SRC_ASSETS)/*.*)
+	@if exist $(BUILD_ASSETS) rmdir $(BUILD_ASSETS) /S /Q
+	@mkdir $(BUILD_ASSETS)
+	@copy $(SRC_ASSETS)\* $(BUILD_ASSETS)\* /Y
 	@echo Copied assets.
 
-prereq: 
-	@mkdir $(interms) 
-	@mkdir $(output) 
-	@mkdir $(build_assets) 
+dirs: 
+	@if not exist $(INTERMS_DIR) mkdir $(INTERMS_DIR) 
+	@if not exist $(OUTPUT_DIR) mkdir $(OUTPUT_DIR) 
+	@if not exist $(BUILD_ASSETS) mkdir $(BUILD_ASSETS)
 
 tags:
 	@echo Building tags...
-	@ctags $(include)/* $(src)/* -R
+	@ctags -R $(src)/* $(INCLUDE_DIRS)/*
 
 clean:
-	@rmdir $(interms) /S /Q
-	@rmdir $(output) /S /Q
-
-.PHONY: prereq clean tags build assets
+	@if exist $(INTERMS_DIR) rmdir $(INTERMS_DIR) /S /Q
+	@if exist $(OUTPUT_DIR) rmdir $(OUTPUT_DIR) /S /Q

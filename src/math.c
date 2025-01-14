@@ -20,7 +20,7 @@ typedef union
 } vec3_t;
 
 typedef union
-{/* {{{ */
+{
     struct 
     {
         union
@@ -39,7 +39,7 @@ typedef union
     };
 
     float members[4];
-/* }}} */
+
 } vec4_t;
 
 typedef union
@@ -66,34 +66,34 @@ mat4_t Mat4 (float m00, float m10, float m20, float m30,
                       m01, m11, m21, m31,
                       m02, m12, m22, m32,
                       m03, m13, m23, m33, };
-}/* }}} */
+}
 
 mat4_t
 Mat4Scale (vec4_t* scale)
-{/* {{{ */
+{
     // TODO: Use matrix multiplication
     float x = scale->x, y = scale->y, z = scale->z;
     return Mat4(x, 0, 0, 0,
             0, y, 0, 0,
             0, 0, z, 0,
             0, 0, 0, 1 );
-}/* }}} */
+}
 
 mat4_t
 Mat4MultiplyScalar (mat4_t* mat, float a)
-{/* {{{ */
+{
     mat4_t new_mat;
     for (int i = 0; i<16; i++)
     {
         new_mat.cont_members[i] = a * mat->cont_members[i];
     }
     return new_mat;
-}/* }}} */
+}
 
 // Matrices are multiplied in the order of arguments provided
 mat4_t
 Mat4MultiplyMat4 (mat4_t mat1, mat4_t mat2)
-{/* {{{ */
+{
     float sum;
     mat4_t mat = {};
     // Traversing column of mat
@@ -135,98 +135,98 @@ Mat4MultiplyMat4 (mat4_t mat1, mat4_t mat2)
         for (int j = 0; j < 4; j++)
             printf("%f ", mat2.members[i][j]);
     };
-}/* }}} */
+}
 
 mat4_t
 Mat4Translate (vec4_t* offset)
-{/* {{{ */
+{
     float x = offset->x, y = offset->y, z = offset->z;
     // TODO: Use matrix multiplication
     return Mat4(1, 0, 0, x,
                 0, 1, 0, y,
                 0, 0, 1, z,
                 0, 0, 0, 1 );
-}/* }}} */
+}
 
 mat4_t
 Mat4Identity ()
-{/* {{{ */
+{
     return Mat4(1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1 );
-}/* }}} */
+}
 
 mat4_t
 Mat4Null ()
-{/* {{{ */
+{
     return Mat4(0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0);
-}/* }}} */
+}
 
 vec4_t 
 Vec4 (float x, float y, float z, float w)
-{/* {{{ */
+{
     return (vec4_t) {x, y, z};
-}/* }}} */
+}
 
 vec4_t
 Vec4Add (vec4_t* a, vec4_t* b)
-{/* {{{ */
+{
     // Don't mess with the w component!
     return (vec4_t) {a->x + b->x, a->y + b->y, a->z + b->z};
-}/* }}} */
+}
 
 vec4_t 
 Vec4Subtract (vec4_t* a, vec4_t* b)
-{/* {{{ */
+{
     // Don't mess with the w component!
     return (vec4_t) {a->x - b->x, a->y - b->y, a->z - b->z};
-}/* }}} */
+}
 
 vec4_t
 Vec4AddScalar (vec4_t* a, float s)
-{/* {{{ */
+{
     return (vec4_t) {a->x + s, a->y + s, a->z + s};
-}/* }}} */
+}
 
 float
 Vec4Mag (vec4_t* a)
-{/* {{{ */
+{
     float mag =  (a->x)*(a->x) + (a->y)*(a->y) + (a->z)*(a->z);
     return sqrtf(mag);
-}/* }}} */
+}
 
 vec4_t
 Vec4MultiplyScalar (vec4_t* a, float s)
-{/* {{{ */
+{
     return (vec4_t) {(1/s) * a->x, (1/s) * a->y,  (1/s) * a->z};
-}/* }}} */
+}
 
 float
 Vec4DotMultiply (vec4_t* a, vec4_t* b)
-{/* {{{ */
+{
     return (a->x * b->x) + (a->y * b->y) + (a->z * b->z);
-}/* }}} */
+}
 
 vec4_t
 Vec4CrossMultiply (vec4_t* a, vec4_t* b)
-{/* {{{ */
+{
     int x = a->y*b->z - b->y*a->z;
     int y = a->z*b->x - b->z*a->x;
     int z = a->x*b->y - b->y*a->x;
     return (vec4_t) {x, y, x};
-}/* }}} */
+}
 
 vec4_t Vec4Direction (vec4_t* a)
-{/* {{{ */
+{
     return Vec4MultiplyScalar(a, Vec4Mag(a));
-}/* }}} */
+}
 
 vec4_t Mat4Vec4Multiply (vec4_t* a, mat4_t* m)
-{/* {{{ */
+{
     float x = a->x, y = a->y, z = a->z;
     float vec[] = {0, 0, 0, VEC4_W_DEFAULT};
 
@@ -243,7 +243,7 @@ vec4_t Mat4Vec4Multiply (vec4_t* a, mat4_t* m)
     }
     printf("Vec:%f,%f,%f,%f\n",vec[0],vec[1],vec[2],vec[3]);
     printf("%f,%f,%f,%f",a->x,a->y,a->z,a->w);
-}/* }}} */
+}
 
 /*int*/
 /*main(void)*/
