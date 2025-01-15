@@ -79,8 +79,12 @@ LRESULT MainWindowCallback(HWND Window,
     switch(Message)
     {
         case WM_CREATE:
-            {
-            } break;
+            {} break;
+
+        case WM_PAINT:
+            {} break;
+            // Important to include this event even if it is empty, since it forces the window to redraw in idle state.
+
         case WM_SIZE:
             {
                 RECT rect;
@@ -88,7 +92,12 @@ LRESULT MainWindowCallback(HWND Window,
                 int width = rect.right - rect.left;
                 int height = rect.bottom - rect.top;
                 glViewport(0, 0, width, height);
-            }	break;
+            } break;
+
+        case WM_TIMER:
+            {
+                printf("Hello");
+            } break;
 
         case WM_DESTROY:
             {
@@ -113,7 +122,7 @@ LRESULT MainWindowCallback(HWND Window,
 
         default:
             {
-                /* OutputDebugString("default\n"); */
+                // Let Windows handle events for us that we don't care about
                 Result = DefWindowProc(Window, Message, wParam, lParam);
             } break;
     }
@@ -146,17 +155,17 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
     if (RegisterClass(&WindowClass))
     {
         HWND WindowHandle = CreateWindowEx(WS_EX_OVERLAPPEDWINDOW|WS_EX_WINDOWEDGE,
-                WindowClass.lpszClassName,
-                "Learning OpenGL",
-                WS_OVERLAPPEDWINDOW|WS_VISIBLE,
-                CW_USEDEFAULT,
-                CW_USEDEFAULT,
-                CW_USEDEFAULT,
-                CW_USEDEFAULT,
-                0,
-                0,
-                Instance,
-                0);
+                                           WindowClass.lpszClassName,
+                                           "Learning OpenGL",
+                                           WS_OVERLAPPEDWINDOW|WS_VISIBLE,
+                                           CW_USEDEFAULT,
+                                           CW_USEDEFAULT,
+                                           CW_USEDEFAULT,
+                                           CW_USEDEFAULT,
+                                           0,
+                                           0,
+                                           Instance,
+                                           0);
 
         if (WindowHandle)
         {
@@ -269,6 +278,7 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
             glUniform1i(glGetUniformLocation(shaderProgram, "texture2"),1);
             /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
 
+            time_t t;
 
             while (1)
             {
@@ -291,9 +301,8 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
                     glBindTexture(GL_TEXTURE_2D, texture2);
 
 
-                    time_t t = time(NULL);
-                    printf("%u", t);
-                    model = glms_rotate(model, glm_rad(t), vec1);
+                    t = time(NULL);
+                    model = glms_rotate(model, glm_rad(t/10000000), vec1);
                     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, model.raw[0]);
                     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projection.raw[0]);
                     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, view.raw[0]);
