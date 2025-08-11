@@ -44,8 +44,9 @@ void InitOpenGL (HWND Window, HDC DeviceContext)
     wglMakeCurrent(DeviceContext, LegacyOpenGLRC);
 
 
-    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) LoadGLFunction("wglCreateContextAttribsARB");
-    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC) LoadGLFunction("wglChoosePixelFormatARB");
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = 
+        (PFNWGLCREATECONTEXTATTRIBSARBPROC) LoadGLFunction("wglCreateContextAttribsARB");
+    /*PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC) LoadGLFunction("wglChoosePixelFormatARB");*/
 
     int attribs[] = {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -65,15 +66,16 @@ void InitOpenGL (HWND Window, HDC DeviceContext)
     
     wglDeleteContext(LegacyOpenGLRC);
     LoadGLFunctionPointers();
+    wglSwapIntervalEXT(10);
     printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
     /* MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0); */
     
 }
 
-LRESULT MainWindowCallback(HWND Window,
-                           UINT Message,
-                           WPARAM wParam,
-                           LPARAM lParam)
+LRESULT MainWindowCallback (HWND Window,
+                            UINT Message,
+                            WPARAM wParam,
+                            LPARAM lParam)
 {
     LRESULT Result = 0;
     switch(Message)
@@ -120,16 +122,31 @@ LRESULT MainWindowCallback(HWND Window,
                 OutputDebugString("WM_ACTIVATEAPP\n");
             } break;
 
+        case WM_LBUTTONDOWN:
+            {
+
+                MSG Message;
+                bool MessageResult = GetMessage(&Message, 0, 0, 0);
+
+                if (MessageResult > 0)
+                {
+                    TranslateMessage(&Message);
+                    DispatchMessage(&Message);
+                }
+            } break;
+
+        case WM_LBUTTONUP:
+            { } break;
+
         default:
             {
                 // Let Windows handle events for us that we don't care about
                 Result = DefWindowProc(Window, Message, wParam, lParam);
             } break;
-    }
+    }        
 
     return Result;
 }
-
 
 inline void OpenGLPleaseDraw (HDC DeviceContext)
 {
@@ -138,7 +155,6 @@ inline void OpenGLPleaseDraw (HDC DeviceContext)
     glClear(GL_COLOR_BUFFER_BIT);
     SwapBuffers(DeviceContext);
 }
-
 
 int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the program
                     HINSTANCE prevInstance, // NULL on newer Windows versions
@@ -193,10 +209,10 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
 
             float vertices[] = {
                 // positions          // colors           // texture coords
-                0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-                0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-                -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-                -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+                0.5f ,  0.5f, 1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // top right
+                0.5f , -0.5f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f , 0.0f ,   // bottom right
+                -0.5f, -0.5f,  0.0f,   0.0f, 0.0f, 1.0f,   0.0f , 0.0f ,   // bottom left
+                -0.5f,  0.5f,  0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
             };
 
             unsigned int indices [] = {
@@ -204,23 +220,22 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
                 1, 2, 3  // Second triangle
             };
 
-            float texCoords[] = {
-                0.0f, 0.0f, // lower left
-                1.0f, 0.0f, // lower right
-                0.5f, 1.0f  // top center
-            };
+            /*float texCoords[] = {*/
+            /*    0.0f, 0.0f, // lower left*/
+            /*    1.0f, 0.0f, // lower right*/
+            /*    0.5f, 1.0f  // top center*/
+            /*};*/
 
             float borderColor[] = {1.0, 1.0f, 0.0f, 1.0f};
 
-            vec3s vec1 = (vec3s){1.0f, 0.0f, 0.0f}, vec2 = {0.5f, 0.5f, 0.5f};
+            vec3s vec1 = {0.0f, 0.0f, 0.1f};
             mat4s model = glms_mat4_identity();
-            model = glms_rotate(model, glm_rad(time(NULL)), vec1);
             
             mat4s view = glms_mat4_identity();
-            view = glms_translate(view, (vec3s){ 0.0f, 0.0f, -3.0f });
+            view = glms_translate(view, (vec3s){ 1.0f, 0.0f, 0.0f });
 
             mat4s projection;
-            projection = glms_perspective(glm_rad(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+            projection = glms_perspective(glm_rad(450.0f), 800.0f / 600.0f, 0.1f, 100.0f);
             
 
             /*m1 = glms_scale(m1, vec1);*/
@@ -276,12 +291,16 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
             glUseProgram(shaderProgram);
             glUniform1i(glGetUniformLocation(shaderProgram, "texture1"),0);
             glUniform1i(glGetUniformLocation(shaderProgram, "texture2"),1);
-            /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); */
+             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); 
 
-            time_t t;
+            /*time_t startTime, endTime, elapsedTime = 0;*/
+            /*int FPS = 600;*/
+            /*double timePerFrame = 1 / FPS;*/
+
 
             while (1)
             {
+                /*startTime = time(NULL);*/
                 MSG Message;
                 bool MessageResult = GetMessage(&Message, 0, 0, 0);
 
@@ -301,8 +320,6 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
                     glBindTexture(GL_TEXTURE_2D, texture2);
 
 
-                    t = time(NULL);
-                    model = glms_rotate(model, glm_rad(t/10000000), vec1);
                     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, model.raw[0]);
                     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, projection.raw[0]);
                     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, view.raw[0]);
@@ -317,6 +334,10 @@ int WINAPI WinMain (HINSTANCE Instance, // Windows-provided instance of the prog
 
                 else
                     break;
+
+                /*endTime = time(NULL);*/
+                /*elapsedTime = startTime - endTime;*/
+                /*Sleep(timePerFrame - elapsedTime);*/
             }
 
             ReleaseDC(WindowHandle, DeviceContext);

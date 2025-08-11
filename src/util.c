@@ -80,7 +80,7 @@ void* LoadGLFunction (const char* name)
 // Since windows.h has the same function but with a different signature, we replace Image with Img
 bool LoadImg(const char* imagePath, Image* image)
 {
-    image->data = stbi_load (imagePath, &(image->width), &(image->height), &(image->colorChannels), 0);
+    image->data = stbi_load(imagePath, &(image->width), &(image->height), &(image->colorChannels), 0);
     if (!image->data)
         return false;
     return true; 

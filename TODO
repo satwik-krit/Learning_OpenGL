@@ -1,2 +1,2 @@
-OPENGL
- - Load OpenGL functions manually  (using GLAD as of now)
+- Enforce a frame rate
+- Use custom math library
